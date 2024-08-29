@@ -1,5 +1,6 @@
 import { IMeasureRepository } from '../repositories/IMeasureRepository';
-import { Measure } from '../entities/Measure';
+import { ERROR_MESSAGES } from '../utils/constants/errorMessages';
+import { MeasureNotFoundException } from '../utils/exceptions/MeasureNotFoundException';
 
 export class ListMeasures {
     private measureRepository: IMeasureRepository;
@@ -9,21 +10,25 @@ export class ListMeasures {
     }
 
     async execute(customerCode: string, measureType?: string) {
-        const measures = await this.measureRepository.findByCustomerCode(customerCode, measureType);
+        try {
+            const measures = await this.measureRepository.findByCustomerCode(customerCode, measureType);
 
-        if (measures.length === 0) {
-            throw new Error('Nenhuma leitura encontrada');
+            if (measures.length === 0) {
+                throw new MeasureNotFoundException(ERROR_MESSAGES.MEASURE_NOT_FOUND);
+            }
+
+            return {
+                customer_code: customerCode,
+                measures: measures.map(measure => ({
+                    measure_uuid: measure.measure_uuid,
+                    measure_datetime: measure.measure_datetime,
+                    measure_type: measure.measure_type,
+                    has_confirmed: measure.has_confirmed,
+                    image_url: measure.image_url
+                }))
+            };
+        } catch (error) {
+            throw error;
         }
-
-        return {
-            customer_code: customerCode,
-            measures: measures.map(measure => ({
-                measure_uuid: measure.measure_uuid,
-                measure_datetime: measure.measure_datetime,
-                measure_type: measure.measure_type,
-                has_confirmed: measure.has_confirmed,
-                image_url: measure.image_url
-            }))
-        };
     }
 }

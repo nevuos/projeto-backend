@@ -13,19 +13,20 @@ import { ListMeasuresResponseDTO } from '../dtos/response/ListMeasuresResponseDT
 import { UploadMeasure } from '../use-cases/UploadMeasure';
 import { ConfirmMeasure } from '../use-cases/ConfirmMeasure';
 import { ListMeasures } from '../use-cases/ListMeasures';
+import { InvalidDataException } from '../utils/exceptions/InvalidDataException';
 
 export class MeasureController {
 
     // POST /upload
     async uploadImage(req: Request, res: Response) {
-        const dto = plainToClass(UploadMeasureDTO, req.body);
-        const errors = await validate(dto);
-
-        if (errors.length > 0) {
-            return res.status(400).json({ error_code: 'INVALID_DATA', error_description: errors });
-        }
-
         try {
+            const dto = plainToClass(UploadMeasureDTO, req.body);
+            const errors = await validate(dto);
+
+            if (errors.length > 0) {
+                throw new InvalidDataException('Dados inválidos fornecidos.');
+            }
+
             const geminiService = new GeminiService();
             const measureRepository = new MeasureRepository();
             const uploadMeasure = new UploadMeasure(measureRepository, geminiService);
@@ -35,20 +36,20 @@ export class MeasureController {
             const response = plainToClass(UploadMeasureResponseDTO, result);
             res.status(200).json(response);
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            res.status(this.getHttpStatus(error)).json({ error_code: error.name, error_description: error.message });
         }
     }
 
     // PATCH /confirm
     async confirmMeasure(req: Request, res: Response) {
-        const dto = plainToClass(ConfirmMeasureDTO, req.body);
-        const errors = await validate(dto);
-
-        if (errors.length > 0) {
-            return res.status(400).json({ error_code: 'INVALID_DATA', error_description: errors });
-        }
-
         try {
+            const dto = plainToClass(ConfirmMeasureDTO, req.body);
+            const errors = await validate(dto);
+
+            if (errors.length > 0) {
+                throw new InvalidDataException('Dados inválidos fornecidos.');
+            }
+
             const measureRepository = new MeasureRepository();
             const confirmMeasure = new ConfirmMeasure(measureRepository);
 
@@ -57,7 +58,7 @@ export class MeasureController {
             const response = plainToClass(ConfirmMeasureResponseDTO, { success: true });
             res.status(200).json(response);
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            res.status(this.getHttpStatus(error)).json({ error_code: error.name, error_description: error.message });
         }
     }
 
@@ -76,7 +77,21 @@ export class MeasureController {
 
             res.status(200).json(response);
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            res.status(this.getHttpStatus(error)).json({ error_code: error.name, error_description: error.message });
+        }
+    }
+
+    private getHttpStatus(error: Error): number {
+        switch (error.name) {
+            case 'InvalidDataException':
+                return 400;
+            case 'NoMeasuresFoundException':
+                return 404;
+            case 'DoubleReportException':
+            case 'ConfirmationDuplicateException':
+                return 409;
+            default:
+                return 500;
         }
     }
 }
