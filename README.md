@@ -6,7 +6,7 @@ Este projeto é um serviço de backend desenvolvido em Node.js com TypeScript, u
 
 Você pode testar os endpoints deste projeto usando a coleção Postman disponível no link abaixo:
 
-[Postman Collection - Projeto Backend](https://lunar-crater-216395.postman.co/workspace/Team-Workspace~4f5c4519-3fe3-4e51-857a-ab777b0f6866/collection/27352023-1dfb8eec-37fa-426f-a68d-c3c6a115123f?action=share&creator=27352023)
+[Postman Collection - Projeto Backend](https://www.postman.com/lunar-crater-216395/workspace/projeto/collection/27352023-1dfb8eec-37fa-426f-a68d-c3c6a115123f?action=share&creator=27352023)
 
 ## Passos para Rodar o Projeto
 
