@@ -1,19 +1,18 @@
-import "reflect-metadata"
-import { DataSource } from "typeorm"
-import { Measure } from "../entities/Measure"
-import { Customer } from "../entities/Customer"
+import "reflect-metadata";
+import { DataSource } from "typeorm";
 
+import { Measure } from "../entities/Measure";
 
 export const AppDataSource = new DataSource({
     type: "postgres",
-    host: "localhost",
-    port: 5432,
-    username: "postgres",
-    password: "478p2279",
-    database: "projeto_backend",
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT || "5432"),
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     synchronize: true,
     logging: false,
-    entities: [Customer, Measure],
+    entities: [Measure],
     migrations: [],
     subscribers: [],
-})
+});

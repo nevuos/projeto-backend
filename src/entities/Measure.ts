@@ -1,5 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
-import { Customer } from "./Customer";
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity()
 export class Measure {
@@ -23,8 +22,4 @@ export class Measure {
 
     @Column({ type: 'varchar', length: 255 })
     customer_code: string;
-
-    @ManyToOne(() => Customer, customer => customer.measures)
-    @JoinColumn({ name: "customer_code", referencedColumnName: "customer_code" })
-    customer: Customer;
 }

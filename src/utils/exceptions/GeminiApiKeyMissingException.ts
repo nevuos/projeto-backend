@@ -1,7 +1,7 @@
-export class ConfirmationDuplicateException extends Error {
+export class GeminiApiKeyMissingException extends Error {
     constructor(message: string) {
         super(message);
-        this.name = 'ConfirmationDuplicateException';
+        this.name = 'GeminiApiKeyMissingException';
         Object.setPrototypeOf(this, new.target.prototype);
     }
 }

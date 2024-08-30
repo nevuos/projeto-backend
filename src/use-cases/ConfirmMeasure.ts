@@ -1,7 +1,8 @@
 import { IMeasureRepository } from '../repositories/IMeasureRepository';
 import { ConfirmationDuplicateException } from '../utils/exceptions/ConfirmationDuplicateException';
 import { MeasureNotFoundException } from '../utils/exceptions/MeasureNotFoundException';
-import { ERROR_MESSAGES } from '../utils/constants/errorMessages';
+import { ConfirmMeasureDTO } from '../dtos/request/ConfirmMeasureDTO';
+import { ERROR_MESSAGES } from '../utils/constants/error-messages';
 
 export class ConfirmMeasure {
     private measureRepository: IMeasureRepository;
@@ -10,10 +11,10 @@ export class ConfirmMeasure {
         this.measureRepository = measureRepository;
     }
 
-    async execute(inputData: any): Promise<{ success: boolean }> {
+    async execute(inputData: ConfirmMeasureDTO): Promise<{ success: boolean }> {
         try {
             const measure = await this.measureRepository.findById(inputData.measure_uuid);
-            
+
             if (!measure) {
                 throw new MeasureNotFoundException(ERROR_MESSAGES.MEASURE_NOT_FOUND);
             }
@@ -29,7 +30,11 @@ export class ConfirmMeasure {
 
             return { success: true };
         } catch (error) {
-            throw error;
+            if (error instanceof MeasureNotFoundException || error instanceof ConfirmationDuplicateException) {
+                throw error;
+            }
+
+            throw new MeasureNotFoundException(ERROR_MESSAGES.MEASURE_NOT_FOUND);
         }
     }
 }

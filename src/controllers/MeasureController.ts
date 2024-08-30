@@ -1,60 +1,59 @@
-import { Request, Response, NextFunction } from 'express';
-import { UploadMeasure } from '../use-cases/UploadMeasure';
-import { ConfirmMeasure } from '../use-cases/ConfirmMeasure';
-import { ListMeasures } from '../use-cases/ListMeasures';
-import { GeminiService } from '../services/GeminiService';
-import { MeasureRepository } from '../repositories/MeasureRepository';
+import { JsonController, Post, Patch, Get, Param, QueryParams, Body, HttpCode } from 'routing-controllers';
+import { plainToInstance } from 'class-transformer';
+import { UploadMeasureDTO } from '../dtos/request/UploadMeasureDTO';
+import { ConfirmMeasureDTO } from '../dtos/request/ConfirmMeasureDTO';
 import { UploadMeasureResponseDTO } from '../dtos/response/UploadMeasureResponseDTO';
 import { ConfirmMeasureResponseDTO } from '../dtos/response/ConfirmMeasureResponseDTO';
 import { ListMeasuresResponseDTO } from '../dtos/response/ListMeasuresResponseDTO';
-import { plainToInstance } from 'class-transformer';
+import { MeasureRepository } from '../repositories/MeasureRepository';
+import { GeminiService } from '../services/GeminiService';
+import { UploadMeasure } from '../use-cases/UploadMeasure';
+import { ConfirmMeasure } from '../use-cases/ConfirmMeasure';
+import { ListMeasures } from '../use-cases/ListMeasures';
+import { SUCCESS_MESSAGES } from '../utils/constants/success-messages';
 
+@JsonController('/measures')
 export class MeasureController {
 
-    async uploadImage(req: Request, res: Response, next: NextFunction) {
-        try {
-            const geminiService = new GeminiService();
-            const measureRepository = new MeasureRepository();
-            const uploadMeasure = new UploadMeasure(measureRepository, geminiService);
+    private geminiService: GeminiService;
+    private measureRepository: MeasureRepository;
 
-            const result = await uploadMeasure.execute(req.body);
-
-            const response = plainToInstance(UploadMeasureResponseDTO, result);
-            res.status(200).json(response);
-        } catch (error) {
-            next(error);
-        }
+    constructor() {
+        this.geminiService = new GeminiService();
+        this.measureRepository = new MeasureRepository();
     }
 
-    async confirmMeasure(req: Request, res: Response, next: NextFunction) {
-        try {
-            const measureRepository = new MeasureRepository();
-            const confirmMeasure = new ConfirmMeasure(measureRepository);
-
-            const result = await confirmMeasure.execute(req.body);
-
-            const response = plainToInstance(ConfirmMeasureResponseDTO, { success: true });
-            res.status(200).json(response);
-        } catch (error) {
-            next(error);
-        }
+    @Post('/upload')
+    @HttpCode(200)
+    async uploadImage(@Body({ options: { limit: '250mb' } }) dto: UploadMeasureDTO) {
+        const uploadMeasure = new UploadMeasure(this.measureRepository, this.geminiService);
+        const result = await uploadMeasure.execute(dto);
+        return {
+            ...plainToInstance(UploadMeasureResponseDTO, result),
+            message: SUCCESS_MESSAGES.MEASURE_UPLOADED
+        };
     }
 
-    async listMeasures(req: Request, res: Response, next: NextFunction) {
-        try {
-            const measureRepository = new MeasureRepository();
-            const listMeasures = new ListMeasures(measureRepository);
+    @Patch('/confirm')
+    @HttpCode(200)
+    async confirmMeasure(@Body() dto: ConfirmMeasureDTO) {
+        const confirmMeasure = new ConfirmMeasure(this.measureRepository);
+        await confirmMeasure.execute(dto);
+        return plainToInstance(ConfirmMeasureResponseDTO, { success: true, message: SUCCESS_MESSAGES.MEASURE_CONFIRMED });
+    }
 
-            const result = await listMeasures.execute(req.params.customer_code, req.query.measure_type as string);
-
-            const response = plainToInstance(ListMeasuresResponseDTO, {
-                customer_code: req.params.customer_code,
+    @Get('/:customer_code/list')
+    @HttpCode(200)
+    async listMeasures(@Param('customer_code') customer_code: string, @QueryParams() query: any) {
+        const listMeasures = new ListMeasures(this.measureRepository);
+        const result = await listMeasures.execute(customer_code, query.measure_type);
+        return {
+            customer_code,
+            measures: plainToInstance(ListMeasuresResponseDTO, {
+                customer_code,
                 measures: result
-            });
-
-            res.status(200).json(response);
-        } catch (error) {
-            next(error);
-        }
+            }),
+            message: SUCCESS_MESSAGES.MEASURE_LISTED
+        };
     }
 }
