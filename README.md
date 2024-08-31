@@ -111,9 +111,6 @@ Este endpoint lista as medidas realizadas por um determinado cliente.
 - **400**: Tipo de medição inválido.
 - **404**: Nenhuma leitura encontrada.
 
-### 5. Testes e Validação
-
-- **Clean Code**: O projeto segue práticas de código limpo para facilitar a leitura e manutenção.
 
 ### 6. Observações
 
