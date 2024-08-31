@@ -1,3 +1,4 @@
+
 # Projeto Backend com TypeORM
 
 Este projeto é um serviço de backend desenvolvido em Node.js com TypeScript, usando TypeORM para integração com o banco de dados PostgreSQL. Ele permite gerenciar leituras individualizadas de consumo de água e gás, utilizando IA para extrair medições a partir de imagens de medidores.
@@ -6,7 +7,7 @@ Este projeto é um serviço de backend desenvolvido em Node.js com TypeScript, u
 
 Você pode testar os endpoints deste projeto usando a coleção Postman disponível no link abaixo:
 
-[Postman Collection - Projeto Backend](https://lunar-crater-216395.postman.co/workspace/Team-Workspace~4f5c4519-3fe3-4e51-857a-ab777b0f6866/collection/27352023-1dfb8eec-37fa-426f-a68d-c3c6a115123f?action=share&creator=27352023)
+[Postman Collection - Projeto Backend](https://www.postman.com/lunar-crater-216395/workspace/projeto/collection/27352023-1dfb8eec-37fa-426f-a68d-c3c6a115123f?action=share&creator=27352023)
 
 ## Passos para Rodar o Projeto
 
@@ -90,6 +91,21 @@ Este endpoint lista as medidas realizadas por um determinado cliente.
 - **measure_type**: Tipo de medição (`WATER` ou `GAS`), case insensitive.
 
 **Response Body:**
+
+```json
+{
+  "customer_code": "string",
+  "measures": [
+    {
+      "measure_uuid": "string",
+      "measure_datetime": "datetime",
+      "measure_type": "string",
+      "has_confirmed": boolean,
+      "image_url": "string"
+    }
+  ]
+}
+```
 
 - **200**: Operação realizada com sucesso.
 - **400**: Tipo de medição inválido.
