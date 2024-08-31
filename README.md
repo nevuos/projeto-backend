@@ -114,7 +114,6 @@ Este endpoint lista as medidas realizadas por um determinado cliente.
 ### 5. Testes e Validação
 
 - **Clean Code**: O projeto segue práticas de código limpo para facilitar a leitura e manutenção.
-- **Testes Unitários**: (Se aplicável) - Inclua informações sobre testes unitários aqui.
 
 ### 6. Observações
 
